@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String        @id(map: "pk_user") @default(uuid())
+  email      String        @unique
+  password   String
+  role       RoleUser
+  status     StatusAccount @default(ACTIVE)
+  picture    String        @default("/images/common.png")
+  language   String        @default("portuguese")
+  appearance Appearance    @default(LIGHT)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([id], map: "index_user")
+}
+
+enum Appearance {
+  LIGHT
+  DARK
+}
+
+enum StatusAccount {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum RoleUser {
+  CLIENT
+  SELLER
+}

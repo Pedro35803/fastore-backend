@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  db:
+    image: postgres
+    container_name: DB_FastShop
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+  redis:
+    image: redis
+    container_name: Cache_FastShop
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_PORT}:6379"

@@ -3,7 +3,7 @@ import { db } from "../../database/postgres";
 
 export const getAll = async (req: Request, res: Response) => {
   const id = req.userId;
-  const data = await db.cart.findMany({
+  const data = await db.favorites.findMany({
     where: { id_client: id },
     include: { product: true },
   });
@@ -14,7 +14,7 @@ export const getAll = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
   const id = req.userId;
   const { id_product } = req.body;
-  const data = await db.cart.create({
+  const data = await db.favorites.create({
     data: { id_client: id, id_product },
     include: { product: true, client: true },
   });
@@ -23,6 +23,6 @@ export const create = async (req: Request, res: Response) => {
 
 export const destroy = async (req: Request, res: Response) => {
   const { id } = req.params;
-  await db.cart.delete({ where: { id } });
+  await db.favorites.delete({ where: { id } });
   res.status(204).send("");
 };

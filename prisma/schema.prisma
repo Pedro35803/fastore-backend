@@ -33,7 +33,9 @@ model Client {
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
 
-  cart Cart[]
+  favorites Favorites[]
+  order     Order[]
+  cart      Cart[]
 
   @@map("client")
 }
@@ -64,7 +66,10 @@ model Product {
   updated_at  DateTime @updatedAt
 
   seller Seller @relation(fields: [id_seller], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_seller_product")
-  cart   Cart[]
+
+  favorites Favorites[]
+  orderItem Order_Item[]
+  cart      Cart[]
 
   @@map("product")
 }
@@ -79,6 +84,52 @@ model Cart {
 
   @@unique([id_product, id_client])
   @@map("cart")
+}
+
+model Favorites {
+  id         String @id(map: "pk_favorites") @default(uuid())
+  id_product String
+  id_client  String
+
+  client  Client  @relation(fields: [id_client], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_client_favorites")
+  product Product @relation(fields: [id_product], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_product_favorites")
+
+  @@unique([id_product, id_client])
+  @@map("favorites")
+}
+
+model Order {
+  id          String      @id(map: "pk_order") @default(uuid())
+  id_client   String // <-- corrigido: era Int, agora String para casar com User.id
+  total_price Decimal // opcional: em Postgres você pode usar @db.Decimal(10,2)
+  status      OrderStatus @default(PENDENT)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+
+  client    Client       @relation(fields: [id_client], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_client_order")
+  orderItem Order_Item[]
+
+  @@map("orders") // recomendado: evita conflito com palavra reservada "order"
+}
+
+model Order_Item {
+  id         String   @id(map: "pk_order_item") @default(uuid())
+  id_order   String // <-- corrigido: era Int, agora String para casar com Order.id
+  product_id String // <-- corrigido: era Int, agora String para casar com Product.id
+  quantity   Int
+  price      Decimal // opcional: @db.Decimal(10,2)
+  created_at DateTime @default(now())
+
+  order   Order   @relation(fields: [id_order], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_order_order_item")
+  product Product @relation(fields: [product_id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_product_order_item")
+
+  @@map("order_item")
+}
+
+enum OrderStatus {
+  PENDENT
+  COMPLETED
+  CANCELED
 }
 
 enum Appearance {

@@ -14,10 +14,13 @@ export const register = async (req: Request, res: Response) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
 
+  const secondTable = role === "CLIENT" ? { client: { create: {} } } : {};
+
   const data = {
     password: hashPassword,
     email,
     role,
+    ...secondTable,
   };
 
   const user = await db.user.create({ data });

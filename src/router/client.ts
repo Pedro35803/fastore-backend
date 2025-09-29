@@ -6,4 +6,8 @@ import { authorization } from "../middleware/isAuttenticate";
 
 export const router = express.Router();
 
-router.get("/client/cart", authorization, cart.getAll);
+router
+  .route("/cart/me")
+  .get(authorization, cart.getAll)
+  .post(authorization, cart.create)
+  .delete(authorization, cart.destroy);

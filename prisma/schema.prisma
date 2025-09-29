@@ -29,9 +29,11 @@ model User {
 model Client {
   id_user       String       @id(map: "pk_client")
   level_account LevelAccount @default(initial)
-  user          User         @relation(fields: [id_user], references: [id], onUpdate: Cascade, map: "fk_client")
+  user          User         @relation(fields: [id_user], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_client")
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
+
+  cart Cart[]
 
   @@map("client")
 }
@@ -40,13 +42,43 @@ model Seller {
   id_user      String   @id(map: "pk_seller")
   cnpj         String
   store_name   String
-  description  String
-  store_active Boolean
-  user         User     @relation(fields: [id_user], references: [id], onUpdate: Cascade, map: "fk_seller")
+  description  String?
+  store_active Boolean  @default(true)
+  user         User     @relation(fields: [id_user], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_seller")
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
+  product Product[]
+
   @@map("seller")
+}
+
+model Product {
+  id          String   @id(map: "pk_product") @default(uuid())
+  name        String
+  id_seller   String
+  price       Float
+  description String
+  picture     String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  seller Seller @relation(fields: [id_seller], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_seller_product")
+  cart   Cart[]
+
+  @@map("product")
+}
+
+model Cart {
+  id         String @id(map: "pk_cart") @default(uuid())
+  id_product String
+  id_client  String
+
+  client  Client  @relation(fields: [id_client], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_client_cart")
+  product Product @relation(fields: [id_product], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_product_cart")
+
+  @@unique([id_product, id_client])
+  @@map("cart")
 }
 
 enum Appearance {

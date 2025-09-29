@@ -33,21 +33,23 @@ export const getById = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const { name, cnpj, storeName, description } = req.body;
+  const { name, cnpj, store_name, description } = req.body;
   const id = req.userId;
   const where = { id };
 
   const user = await db.user.findUniqueOrThrow({ where });
 
   const canUpdateStore =
-    user.role === "SELLER" && (cnpj || storeName || description);
+    user.role === "SELLER" && (cnpj || store_name || description);
 
-  const dataUpdate = { id_user: id, cnpj, storeName, description };
+  const dataUpdate = { cnpj, store_name, description };
   const update = canUpdateStore
     ? {
         seller: {
-          create: dataUpdate,
-          update: { data: dataUpdate, where: { id_user: id } },
+          upsert: {
+            create: dataUpdate,
+            update: dataUpdate,
+          },
         },
       }
     : {};

@@ -33,30 +33,49 @@ export const getById = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const { email, name, password, ...userData } = req.body;
+  const { name, cnpj, storeName, description } = req.body;
   const id = req.userId;
   const where = { id };
 
-  await db.user.findUniqueOrThrow({ where });
+  const user = await db.user.findUniqueOrThrow({ where });
 
-  email && validateEmail(email);
-  password && validatePassword(password);
+  const canUpdateStore =
+    user.role === "SELLER" && (cnpj || storeName || description);
 
-  const update = {
-    password: password ? await bcrypt.hash(password, 10) : undefined,
-    email,
-    name,
-  };
+  const dataUpdate = { id_user: id, cnpj, storeName, description };
+  const update = canUpdateStore
+    ? {
+        seller: {
+          create: dataUpdate,
+          update: { data: dataUpdate, where: { id_user: id } },
+        },
+      }
+    : {};
 
-  const user = await db.user.update({
+  const data = await db.user.update({
+    data: { name, ...update },
+    where,
+  });
+
+  const response = objResponse(data);
+  res.status(203).json(response);
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  const { password } = req.params;
+  const id = req.userId;
+  const where = { id };
+
+  validatePassword(password);
+
+  const data = await db.user.update({
     data: {
-      ...userData,
-      userLogged: { update: { data: { ...update }, where: { id_user: id } } },
+      password: await bcrypt.hash(password, 10),
     },
     where,
   });
 
-  const response = objResponse(user);
+  const response = objResponse(data);
   res.status(203).json(response);
 };
 

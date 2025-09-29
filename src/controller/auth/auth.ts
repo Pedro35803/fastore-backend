@@ -40,7 +40,7 @@ export const login = async (req: Request, res: Response) => {
   const isPasswordEqual = await bcrypt.compare(password, user.password);
   if (!isPasswordEqual) throw objError;
 
-  const token = jwt.sign({ sub: user.id, type: "logged" }, JWT_SECRET, {
+  const token = jwt.sign({ sub: user.id, type: user.role }, JWT_SECRET, {
     algorithm: "HS256",
   });
 

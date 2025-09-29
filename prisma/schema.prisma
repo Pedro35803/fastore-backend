@@ -11,15 +11,42 @@ model User {
   id         String        @id(map: "pk_user") @default(uuid())
   email      String        @unique
   password   String
+  name       String?
   role       RoleUser
   status     StatusAccount @default(ACTIVE)
   picture    String        @default("/images/common.png")
   language   String        @default("portuguese")
   appearance Appearance    @default(LIGHT)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  client     Client?
+  seller     Seller?
 
   @@index([id], map: "index_user")
+  @@map("user")
+}
+
+model Client {
+  id_user       String       @id(map: "pk_client")
+  level_account LevelAccount @default(initial)
+  user          User         @relation(fields: [id_user], references: [id], onUpdate: Cascade, map: "fk_client")
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+
+  @@map("client")
+}
+
+model Seller {
+  id_user      String   @id(map: "pk_seller")
+  cnpj         String
+  store_name   String
+  description  String
+  store_active Boolean
+  user         User     @relation(fields: [id_user], references: [id], onUpdate: Cascade, map: "fk_seller")
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("seller")
 }
 
 enum Appearance {
@@ -31,6 +58,12 @@ enum StatusAccount {
   ACTIVE
   SUSPENDED
   DELETED
+}
+
+enum LevelAccount {
+  initial
+  silver
+  gold
 }
 
 enum RoleUser {

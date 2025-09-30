@@ -13,8 +13,8 @@ model User {
   password   String
   name       String?
   role       RoleUser
+  picture    String
   status     StatusAccount @default(ACTIVE)
-  picture    String        @default("/images/common.png")
   language   String        @default("portuguese")
   appearance Appearance    @default(LIGHT)
   created_at DateTime      @default(now())
@@ -100,8 +100,8 @@ model Favorites {
 
 model Order {
   id          String      @id(map: "pk_order") @default(uuid())
-  id_client   String // <-- corrigido: era Int, agora String para casar com User.id
-  total_price Decimal // opcional: em Postgres você pode usar @db.Decimal(10,2)
+  id_client   String 
+  total_price Decimal
   status      OrderStatus @default(PENDENT)
   created_at  DateTime    @default(now())
   updated_at  DateTime    @updatedAt
@@ -109,15 +109,15 @@ model Order {
   client    Client       @relation(fields: [id_client], references: [id_user], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_client_order")
   orderItem Order_Item[]
 
-  @@map("orders") // recomendado: evita conflito com palavra reservada "order"
+  @@map("orders")
 }
 
 model Order_Item {
   id         String   @id(map: "pk_order_item") @default(uuid())
-  id_order   String // <-- corrigido: era Int, agora String para casar com Order.id
-  product_id String // <-- corrigido: era Int, agora String para casar com Product.id
+  id_order   String
+  product_id String
   quantity   Int
-  price      Decimal // opcional: @db.Decimal(10,2)
+  price      Decimal
   created_at DateTime @default(now())
 
   order   Order   @relation(fields: [id_order], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_order_order_item")

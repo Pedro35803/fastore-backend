@@ -2,16 +2,29 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../../database/postgres";
 import { validateEmail, validatePassword } from "../../services/validate";
+import { BASE_URL } from "../../env";
 
 const objResponse = (user) => {
   return { ...user, password: undefined };
 };
 
+const regexVerifyImgExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff)$/;
+const regexVerifyScriptsExtensions =
+  /\.(php[0-9]?|pht|phtml|phar|asp[x]?|jsp|cfm|cgi|exe|sh|bat|cmd|com|scr|js|vbs|wsf|ps1)/;
+
 export const updateImage = async (req: Request, res: Response) => {
   const id = req.userId;
   const { filename } = req.file;
 
-  const picture = `/images/${filename}`;
+  const containMaliciousExtension = regexVerifyScriptsExtensions.test(filename);
+  const containImageExtension = regexVerifyImgExtensions.test(filename);
+
+  if (containMaliciousExtension)
+    throw { message: "script file not allowed", status: 406 };
+  else if (!containImageExtension)
+    throw { message: "extension not allowed", status: 406 };
+
+  const picture = BASE_URL + `/images/${filename}`;
 
   const user = await db.user.update({
     where: { id },

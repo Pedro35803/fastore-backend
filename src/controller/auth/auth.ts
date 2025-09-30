@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { validateEmail, validatePassword } from "../../services/validate";
-import { JWT_SECRET } from "../../env";
+import { BASE_URL, JWT_SECRET } from "../../env";
 import { db } from "../../database/postgres";
 
 export const register = async (req: Request, res: Response) => {
@@ -18,6 +18,7 @@ export const register = async (req: Request, res: Response) => {
 
   const data = {
     password: hashPassword,
+    picture: `${BASE_URL}/images/common.png`,
     email,
     role,
     ...secondTable,

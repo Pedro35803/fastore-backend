@@ -3,6 +3,7 @@ config();
 
 export const {
   JWT_SECRET,
+  BASE_URL, // For security
   PORT,
   EMAIL_SERVICE_SMTP,
   PASS_SERVICE_SMTP,
@@ -11,6 +12,7 @@ export const {
 } = process.env;
 
 if (!JWT_SECRET) throw new Error("Missing JWT_SECRET env variable");
+if (!BASE_URL) throw new Error("Missing BASE_URL env variable");
 
 if (
   !EMAIL_SERVICE_SMTP ||

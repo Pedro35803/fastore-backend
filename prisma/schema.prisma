@@ -14,7 +14,7 @@ model User {
   name       String?
   role       RoleUser
   picture    String
-  status     StatusAccount @default(ACTIVE)
+  status     StatusAccount @default(INCOMPLETE)
   language   String        @default("portuguese")
   appearance Appearance    @default(LIGHT)
   created_at DateTime      @default(now())
@@ -139,6 +139,7 @@ enum Appearance {
 
 enum StatusAccount {
   ACTIVE
+  INCOMPLETE
   SUSPENDED
   DELETED
 }

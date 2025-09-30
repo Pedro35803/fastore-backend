@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "ts-node-dev --transpile-only src/index.ts",
     "docker:reset": "docker-compose down && docker-compose up -d",
-    "db": "prisma migrate dev",
-    "db:reset": "prisma migrate reset && npm run db:populate",
-    "db:populate": "ts-node prisma/migrations/aliment_db/data-migration.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
     "test": "jest"
   },
   "keywords": [],

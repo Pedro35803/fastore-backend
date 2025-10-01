@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../../database/postgres";
 import { validateEmail, validatePassword } from "../../services/validate";
@@ -39,13 +39,18 @@ export const getById = async (req: Request, res: Response) => {
   const id = req.userId;
   const user = await db.user.findUniqueOrThrow({
     where: { id },
+    include: { seller: true, client: true },
   });
 
   const response = objResponse(user);
   res.json(response);
 };
 
-export const update = async (req: Request, res: Response) => {
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { name, cnpj, store_name, description } = req.body;
   const id = req.userId;
   const where = { id };
@@ -74,6 +79,7 @@ export const update = async (req: Request, res: Response) => {
 
   const response = objResponse(data);
   res.status(203).json(response);
+  next();
 };
 
 export const updatePassword = async (req: Request, res: Response) => {

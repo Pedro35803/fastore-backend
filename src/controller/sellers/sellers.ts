@@ -6,11 +6,12 @@ export const verifyStatusPerfil = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.typeUser !== "SELLER") return next();
   const user = await db.user.findUnique({
     where: { id: req.userId },
     include: { seller: true },
   });
+
+  if (user.role !== "SELLER") return next();
 
   const { store_name, cnpj, description, store_active } = user.seller;
   if (user.status === "ACTIVE" && store_active) return res.json(user);
@@ -26,5 +27,5 @@ export const verifyStatusPerfil = async (
     });
     return res.json(updateData);
   }
-  res.json();
+  next();
 };

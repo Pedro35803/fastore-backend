@@ -11,6 +11,7 @@ import {
   verifyKey,
 } from "../controller/auth/recoveryPassword";
 import { upload } from "../upload";
+import * as seller from "../controller/sellers/sellers";
 
 export const router = express.Router();
 
@@ -25,7 +26,7 @@ router.post("/change-password", changePassword);
 router
   .route("/user/me")
   .get(authorization, user.getById)
-  .patch(authorization, user.update)
+  .patch(authorization, user.update, seller.verifyStatusPerfil)
   .delete(authorization, user.destroy);
 
 router.post(

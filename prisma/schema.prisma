@@ -100,7 +100,7 @@ model Favorites {
 
 model Order {
   id          String      @id(map: "pk_order") @default(uuid())
-  id_client   String 
+  id_client   String
   total_price Decimal
   status      OrderStatus @default(PENDENT)
   created_at  DateTime    @default(now())

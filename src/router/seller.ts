@@ -5,6 +5,7 @@ import * as products from "../controller/sellers/product";
 import * as stores from "../controller/sellers/stores";
 
 import { authorization } from "../middleware/isAuttenticate";
+import { verifyAccount } from "../middleware/verifyActiveAccount";
 
 export const router = express.Router();
 
@@ -12,14 +13,14 @@ router.get("/seller/dashboard", authorization, statistics.dashboardSeller);
 
 router
   .route("/products")
-  .post(authorization, products.create)
-  .patch(authorization, products.update)
+  .post(authorization, verifyAccount, products.create)
+  .patch(authorization, verifyAccount, products.update)
   .get(products.getAll);
 
 router
   .route("/products/:id")
-  .patch(authorization, products.update)
-  .delete(authorization, products.destroy)
+  .patch(authorization, verifyAccount, products.update)
+  .delete(authorization, verifyAccount, products.destroy)
   .get(products.getById);
 
 router.get("/stores", stores.getAll);

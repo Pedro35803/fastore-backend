@@ -7,6 +7,10 @@ import * as stores from "../controller/sellers/stores";
 import { authorization } from "../middleware/isAuttenticate";
 import { verifyAccount } from "../middleware/verifyActiveAccount";
 
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage() });
+
 export const router = express.Router();
 
 router.get("/seller/dashboard", authorization, statistics.dashboardSeller);
@@ -16,6 +20,14 @@ router
   .post(authorization, verifyAccount, products.create)
   .patch(authorization, verifyAccount, products.update)
   .get(products.getAll);
+
+router.post(
+  "/products/csv",
+  upload.single("file"),
+  authorization,
+  verifyAccount,
+  products.createForCSV
+);
 
 router
   .route("/products/:id")

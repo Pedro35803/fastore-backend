@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "../../database/postgres";
 import { Product } from "@prisma/client";
+import { readCsv } from "../../services/csv";
 
 export const getAll = async (req: Request, res: Response) => {
   const data = await db.product.findMany();
@@ -25,6 +26,27 @@ export const create = async (req: Request, res: Response) => {
     data: { ...req.body, id_seller: id },
   });
   res.status(201).json(data);
+};
+
+export const createForCSV = async (req: Request, res: Response) => {
+  const { name_field, price_field, description_field, picture_field } =
+    req.body;
+
+  if (!name_field && !price_field && !description_field && !picture_field)
+    throw { message: "Missing field for remap CSV" };
+  if (!req.file) throw { message: "File is required" };
+
+  const listProducts = await readCsv(req.file);
+  const listRemap = listProducts.map((product) => ({
+    id_seller: req.userId,
+    name: product[name_field],
+    price: Number(product[price_field]),
+    picture: product[picture_field],
+    description: product[description_field],
+  }));
+
+  await db.product.createMany({ data: listRemap });
+  res.status(201).json(listRemap);
 };
 
 export const update = async (req: Request, res: Response) => {

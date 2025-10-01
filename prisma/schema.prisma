@@ -44,7 +44,7 @@ model Seller {
   id_user      String   @id(map: "pk_seller")
   cnpj         String
   store_name   String
-  description  String?
+  description  String
   store_active Boolean  @default(true)
   user         User     @relation(fields: [id_user], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "fk_id_seller")
   created_at   DateTime @default(now())
@@ -76,6 +76,7 @@ model Product {
 
 model Cart {
   id         String @id(map: "pk_cart") @default(uuid())
+  quantity   Int    @default(1)
   id_product String
   id_client  String
 

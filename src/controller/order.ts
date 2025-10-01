@@ -12,15 +12,51 @@ export const getAll = async (req: Request, res: Response) => {
   res.json(data);
 };
 
-export const create = async (req: Request, res: Response) => {
-  const { id_client, products } = req.body;
+export const createForOneProduct = async (req: Request, res: Response) => {
+  const { id_product, quantity } = req.body;
+  const amount = quantity || 1;
 
-  if (!id_client || !Array.isArray(products) || products.length === 0) {
-    throw { message: "Client and product is required" };
+  const product = await db.product.findUniqueOrThrow({
+    where: { id: id_product },
+  });
+
+  const order = await db.order.create({
+    data: {
+      id_client: req.userId,
+      total_price: product.price * amount,
+      status: "COMPLETED",
+    },
+  });
+
+  const orderItems = await db.order_Item.createManyAndReturn({
+    data: {
+      id_order: order.id,
+      product_id: product.id,
+      price: product.price,
+      quantity: amount,
+    },
+  });
+
+  res.json({ ...order, items: orderItems });
+};
+
+export const createForCart = async (req: Request, res: Response) => {
+  const id_client = req.userId;
+
+  const cartItem = await db.cart.findMany({
+    where: { id_client },
+    include: { product: true },
+  });
+
+  if (cartItem.length < 1) {
+    throw {
+      message: "No items in the cart, no order was created.",
+      modal: "No items in the cart",
+    };
   }
 
-  const total_price = products.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+  const total_price = cartItem.reduce(
+    (acc, item) => acc + item.product.price * item.quantity,
     0
   );
 
@@ -29,10 +65,10 @@ export const create = async (req: Request, res: Response) => {
   });
 
   const orderItems = await db.order_Item.createManyAndReturn({
-    data: products.map((item) => ({
+    data: cartItem.map((item) => ({
       id_order: order.id,
-      product_id: item.id,
-      price: item.price,
+      product_id: item.product.id,
+      price: item.product.price,
       quantity: item.quantity,
     })),
   });

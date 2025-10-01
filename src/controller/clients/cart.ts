@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { db } from "../../database/postgres";
 
 export const getAll = async (req: Request, res: Response) => {
@@ -8,21 +8,42 @@ export const getAll = async (req: Request, res: Response) => {
     include: { product: true },
   });
 
-  res.json(data.map((item) => item.product));
+  const total_price = data.reduce(
+    (acc, item) => acc + item.product.price * item.quantity,
+    0
+  );
+
+  res.json({
+    total_price,
+    cart: data.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      product: item.product,
+    })),
+  });
 };
 
 export const create = async (req: Request, res: Response) => {
-  const id = req.userId;
+  const id_client = req.userId;
   const { id_product } = req.body;
   const data = await db.cart.create({
-    data: { id_client: id, id_product },
+    data: { id_client, id_product },
     include: { product: true, client: true },
   });
-  res.json(data);
+  res.status(201).json(data);
 };
 
 export const destroy = async (req: Request, res: Response) => {
   const { id } = req.params;
   await db.cart.delete({ where: { id } });
   res.status(204).send("");
+};
+
+export const clear = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  await db.cart.deleteMany({ where: { id_client: req.userId } });
+  next();
 };

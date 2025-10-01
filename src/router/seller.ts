@@ -13,7 +13,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 export const router = express.Router();
 
-router.get("/seller/dashboard", authorization, statistics.dashboardSeller);
+router.get("/dashboard", authorization, statistics.dashboardSeller);
 
 router
   .route("/products")

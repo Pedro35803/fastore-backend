@@ -4,6 +4,7 @@ import * as auth from "../controller/auth/auth";
 import * as user from "../controller/auth/user";
 
 import { authorization } from "../middleware/isAuttenticate";
+import { updateStatusPerfil } from "../middleware/updateStatusPerfil";
 import {
   changePassword,
   generateCode,
@@ -11,7 +12,6 @@ import {
   verifyKey,
 } from "../controller/auth/recoveryPassword";
 import { upload } from "../upload";
-import * as seller from "../controller/sellers/sellers";
 
 export const router = express.Router();
 
@@ -26,8 +26,7 @@ router.post("/change-password", changePassword);
 router
   .route("/user/me")
   .get(authorization, user.getById)
-  .patch(authorization, user.update, seller.verifyStatusPerfil)
-  .delete(authorization, user.destroy);
+  .patch(authorization, user.update, updateStatusPerfil);
 
 router.post(
   "/user/me/picture",

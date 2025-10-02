@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import { JWT_SECRET } from "../env";
-import { TypeUser } from "../@types/enums";
+import { db } from "../database/postgres";
 
 export const authorization = async (
   req: Request,
@@ -20,6 +20,16 @@ export const authorization = async (
   if (!decoded) throw { status: 401, message: "Unauthorized access" };
 
   req.userId = decoded.sub as string;
-  req.type = decoded.type as TypeUser;
+
+  const user = await db.user.findUniqueOrThrow({ where: { id: req.userId } });
+  if (user.status === "DELETED")
+    throw {
+      message: "User account has been deleted and cannot be accessed",
+      status: 410,
+    };
+
+  req.userType = user.role;
+  req.userStatus = user.status;
+
   next();
 };

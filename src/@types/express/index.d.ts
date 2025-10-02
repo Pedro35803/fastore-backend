@@ -1,10 +1,11 @@
-import { TypeUser } from "../enums";
+import { RoleUser, StatusAccount } from "@prisma/client";
 
 declare global {
   namespace Express {
     export interface Request {
       userId: string;
-      typeUser: TypeUser;
+      userType: RoleUser;
+      userStatus: StatusAccount;
       file: {
         filename: string;
       };

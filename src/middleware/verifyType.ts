@@ -5,7 +5,7 @@ export const verifyClient = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.type !== "CLIENT")
+  if (req.userType !== "CLIENT")
     throw { message: "router for client use", status: 401 };
   next();
 };

@@ -4,19 +4,20 @@ import { Product } from "@prisma/client";
 import { readCsv } from "../../services/csv";
 
 export const getAll = async (req: Request, res: Response) => {
-  const data = await db.product.findMany();
-  res.json(data);
-};
-
-export const getAllByStore = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const data = await db.product.findMany({ where: { id_seller: id } });
+  const data = await db.product.findMany({
+    where: { seller: { store_active: true } },
+  });
   res.json(data);
 };
 
 export const getById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const data = await db.product.findMany({ where: { id } });
+  const data = await db.product.findUniqueOrThrow({
+    where: { id },
+    include: { seller: true },
+  });
+  if (!data.seller.store_active)
+    throw { message: "Occult product, Store is desative", status: 404 };
   res.json(data);
 };
 

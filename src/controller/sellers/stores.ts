@@ -8,6 +8,7 @@ export const getAll = async (req: Request, res: Response) => {
   const stores = await db.seller.findMany({
     take,
     skip,
+    where: { store_active: true },
     include: { user: true },
   });
   res.json(stores);
@@ -19,5 +20,6 @@ export const getById = async (req: Request, res: Response) => {
     where: { id_user: id },
     include: { product: true, user: true },
   });
+  if (!store.store_active) throw { message: "Store desative", status: 404 };
   res.json(store);
 };

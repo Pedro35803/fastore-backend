@@ -1,6 +1,7 @@
 import express from "express";
 
 import * as cart from "../controller/clients/cart";
+import * as client from "../controller/clients/client";
 import * as favorites from "../controller/clients/favorite";
 
 import { authorization } from "../middleware/isAuttenticate";
@@ -25,3 +26,4 @@ const generateRouters = (name: string, controller: any) => {
 generateRouters("cart", cart);
 generateRouters("favorite", favorites);
 
+router.delete("/client", authorization, client.destroy);

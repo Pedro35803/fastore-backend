@@ -99,11 +99,3 @@ export const updatePassword = async (req: Request, res: Response) => {
   const response = objResponse(data);
   res.status(203).json(response);
 };
-
-export const destroy = async (req: Request, res: Response) => {
-  const id = req.userId;
-  const filter = { where: { id } };
-  await db.user.findUniqueOrThrow(filter);
-  const user = await db.user.delete(filter);
-  res.status(204).json(user);
-};

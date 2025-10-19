@@ -9,6 +9,9 @@ export const {
   PASS_SERVICE_SMTP,
   HOST_SERVICE_SMTP,
   PORT_SERVICE_SMTP,
+  REDIS_HOST,
+  REDIS_PORT,
+  REDIS_PASSWORD,
 } = process.env;
 
 if (!JWT_SECRET) throw new Error("Missing JWT_SECRET env variable");
@@ -21,3 +24,6 @@ if (
   !PORT_SERVICE_SMTP
 )
   throw new Error("Missing variables for email service");
+
+if (!REDIS_HOST && !REDIS_PORT && !REDIS_PASSWORD)
+  throw new Error("Missing variables for redis connect service");

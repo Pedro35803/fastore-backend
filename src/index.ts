@@ -22,6 +22,10 @@ app.use(routerOrders);
 app.use("/images", express.static("uploads"));
 app.use(handleError);
 
+app.get("/vasco", (req, res) => {
+  res.send(req.hostname);
+});
+
 const port = PORT || 3000;
 
 app.listen(port, () => console.log(`Application running in port ${port}`));

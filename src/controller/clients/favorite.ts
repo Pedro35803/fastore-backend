@@ -5,10 +5,16 @@ export const getAll = async (req: Request, res: Response) => {
   const id = req.userId;
   const data = await db.favorites.findMany({
     where: { id_client: id },
-    include: { product: true },
+    include: { product: { include: { cart: true } } },
   });
 
-  res.json(data.map((item) => item.product));
+  res.json(
+    data.map((item) => ({
+      ...item.product,
+      cart: undefined,
+      containInCart: item.product.cart.some((cart) => cart.id_client === id),
+    }))
+  );
 };
 
 export const create = async (req: Request, res: Response) => {
@@ -22,7 +28,14 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const destroy = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await db.favorites.delete({ where: { id } });
+  const { id: productId } = req.params;
+  await db.favorites.delete({
+    where: {
+      id_product_id_client: {
+        id_client: req.userId,
+        id_product: productId,
+      },
+    },
+  });
   res.status(204).send("");
 };

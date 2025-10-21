@@ -5,7 +5,7 @@ export const getAll = async (req: Request, res: Response) => {
   const id = req.userId;
   const data = await db.cart.findMany({
     where: { id_client: id },
-    include: { product: true },
+    include: { product: { include: { favorites: true } } },
   });
 
   const total_price = data.reduce(
@@ -19,6 +19,7 @@ export const getAll = async (req: Request, res: Response) => {
       id: item.id,
       quantity: item.quantity,
       product: item.product,
+      isFavorite: item.product.favorites.some((fav) => fav.id_client === id),
     })),
   });
 };
@@ -34,8 +35,15 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const destroy = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await db.cart.delete({ where: { id } });
+  const { id: productId } = req.params;
+  await db.cart.delete({
+    where: {
+      id_product_id_client: {
+        id_client: req.userId,
+        id_product: productId,
+      },
+    },
+  });
   res.status(204).send("");
 };
 

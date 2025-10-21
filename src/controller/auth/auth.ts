@@ -29,16 +29,20 @@ export const register = async (req: Request, res: Response) => {
   res.status(201).json({ ...user, password: undefined });
 };
 
+const throwError422 = (field: string) => {
+  throw { status: 422, fields: { [field]: `Argument '${field}' is missing` } };
+};
+
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const objError = { status: 401, message: "email or password incorrect" };
+  const msg401 = "email or password incorrect";
+  const objError = { status: 401, fields: { email: msg401, password: msg401 } };
 
-  if (!email) throw new Error("Argument `email` is missing");
-  if (!password) throw new Error("Argument `password` is missing");
+  if (!email) throwError422("email");
+  if (!password) throwError422("password");
 
-  const user = await db.user.findUnique({
-    where: { email },
-  });
+  const user = await db.user.findUnique({ where: { email } });
+
   if (!user) throw objError;
 
   const isPasswordEqual = await bcrypt.compare(password, user.password);

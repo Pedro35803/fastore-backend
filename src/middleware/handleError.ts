@@ -37,7 +37,15 @@ export function handleError(
     if (error.code === "P2025" || error.code === "P2016") {
       res.status(404).send(`No ${error.meta.modelName} found`);
     } else if (error.code == "P2002") {
-      res.status(409);
+      const fieldsName = error.message?.match(
+        /Unique constraint failed on the fields: \(`(.+?)`\)/
+      );
+      const fields = Object.fromEntries(
+        fieldsName?.map((field) => [field, `${field} exists`])
+      );
+      return res
+        .status(409)
+        .json({ ...errorObj, fields, message: "field error" });
     }
 
     res.send(error.meta?.cause || message);

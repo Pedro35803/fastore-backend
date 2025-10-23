@@ -73,5 +73,7 @@ export const createForCart = async (req: Request, res: Response) => {
     })),
   });
 
+  await db.cart.deleteMany({ where: { id_client: req.userId } });
+
   res.json({ ...order, items: orderItems });
 };
